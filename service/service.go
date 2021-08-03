@@ -39,8 +39,13 @@ func (s *Service) ListenAndHandleRequests() error {
 	if !s.initialized {
 		return errors.New("the object Service is not initialized")
 	}
-	hostStr := "localhost:" + strconv.Itoa(s.Config.Port)
-	fmt.Println("pepino service: Listening on HTTP " + hostStr)
-	http.ListenAndServe(hostStr, http.HandlerFunc(s.httpHandler))
+	hostStr := s.Config.Host + ":" + strconv.Itoa(s.Config.Port)
+	if s.Config.TLSEnable {
+		fmt.Println("pepino service: Listening on HTTPS@" + hostStr)
+		http.ListenAndServeTLS(hostStr, s.Config.TLSCertFile, s.Config.TLSKeyFile, http.HandlerFunc(s.httpHandler))
+	} else {
+		fmt.Println("pepino service: Listening on HTTP@" + hostStr)
+		http.ListenAndServe(hostStr, http.HandlerFunc(s.httpHandler))
+	}
 	return nil
 }

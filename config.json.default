@@ -1,3 +1,9 @@
 {
-	"Port": 50200
+	"Host": "127.0.0.1",
+	"Port": 50200,
+	"Password": "caipiroska",
+	"TLSEnable": false,
+	"TLSCertFile": "./sslcert",
+	"TLSKeyFile": "./sslkey"
 }
+

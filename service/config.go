@@ -8,7 +8,12 @@ import (
 
 // ServiceConfig is ...
 type ServiceConfig struct {
-	Port int
+	Host        string
+	Port        int
+	Password    string
+	TLSEnable   bool
+	TLSCertFile string
+	TLSKeyFile  string
 }
 
 // LoadFromJSONFile is ...
