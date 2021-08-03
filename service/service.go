@@ -25,10 +25,10 @@ func (s *Service) New(cfg *ServiceConfig) {
 		switch strings.ToUpper(r.Method) {
 		case "GET":
 			fmt.Println("pepino service: GET request")
-		case "PUT":
-			fmt.Println("pepino service: PUT request")
 		case "POST":
 			fmt.Println("pepino service: POST request")
+		case "DELETE":
+			fmt.Println("pepino service: DELETE request")
 		}
 	}
 	s.initialized = true
