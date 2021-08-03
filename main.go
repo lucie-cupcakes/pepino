@@ -1,11 +1,13 @@
 package main
 
 import (
-	"fmt"
-
 	pepinoengine "github.com/lucie-cupcakes/pepino/engine"
 )
 
 func main() {
-	fmt.Println(pepinoengine.TestFunc())
+	var db pepinoengine.PepinoDatabase
+	db.New("test-db")
+	db.Entries["hello"] = []byte("Hello world!")
+	db.Save()
+
 }
