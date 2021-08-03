@@ -1,6 +1,9 @@
 # Data folder (db data)
 data/
 
+# Config
+config.json
+
 # Program binary
 pepino
 
