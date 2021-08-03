@@ -40,7 +40,7 @@ func (s *Service) ListenAndHandleRequests() error {
 		return errors.New("the object Service is not initialized")
 	}
 	hostStr := "localhost:" + strconv.Itoa(s.Config.Port)
-	http.ListenAndServe(hostStr, http.HandlerFunc(s.httpHandler))
 	fmt.Println("pepino service: Listening on HTTP " + hostStr)
+	http.ListenAndServe(hostStr, http.HandlerFunc(s.httpHandler))
 	return nil
 }

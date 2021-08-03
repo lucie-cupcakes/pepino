@@ -6,11 +6,13 @@ import (
 
 func main() {
 	var svc pepinosvc.Service
+	var cfg pepinosvc.ServiceConfig
 
-	err := svc.Config.LoadFromJSONFile("./config.json")
+	err := cfg.LoadFromJSONFile("./config.json")
 	if err != nil {
 		panic(err)
 	}
+	svc.New(&cfg)
 
 	err = svc.ListenAndHandleRequests()
 	if err != nil {
