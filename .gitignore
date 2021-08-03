@@ -3,6 +3,8 @@ data/
 
 # Config
 config.json
+sslcert
+sslkey
 
 # Program binary
 pepino
