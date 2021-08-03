@@ -39,7 +39,7 @@ func (d *PepinoDatabase) Save() error {
 	return nil
 }
 
-// HasSavedData tells whatever a PepinoDatabase object has saved data
+// HasSavedData tells if a PepinoDatabase object has saved data
 // available to restore
 func (d *PepinoDatabase) HasSavedData() bool {
 	if _, err := os.Stat("./data/" + d.Name); err == nil {
