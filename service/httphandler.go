@@ -9,13 +9,7 @@ import (
 	"strings"
 )
 
-// ServiceHTTPRequest is ...
-type ServiceHTTPRequest struct {
-	Password  string
-	Arguments map[string]string
-}
-
-// ServiceHTTPHandler is ...
+// ServiceHTTPHandler is the state of an ongoing HTTPRequest
 type ServiceHTTPHandler struct {
 	service        *Service
 	request        *http.Request
@@ -24,7 +18,7 @@ type ServiceHTTPHandler struct {
 	initialized    bool
 }
 
-// New is ...
+// New initializes a ServiceHTTPHandler object
 func (h *ServiceHTTPHandler) New(svc *Service, r *http.Request,
 	rw *http.ResponseWriter) {
 	h.request = r
@@ -36,7 +30,7 @@ func (h *ServiceHTTPHandler) New(svc *Service, r *http.Request,
 
 func (h *ServiceHTTPHandler) loadServiceRequest() error {
 	req := h.request
-	if !strings.Contains(strings.ToLower(req.Header.Get("Content-Type")), "/json") {
+	if !strings.HasSuffix(strings.ToLower(req.Header.Get("Content-Type")), "/json") {
 		return errors.New("invalid Content-Type")
 	}
 
@@ -48,6 +42,10 @@ func (h *ServiceHTTPHandler) loadServiceRequest() error {
 	json.Unmarshal(bodyBytes, &svcReq)
 	h.serviceRequest = &svcReq
 
+	if svcReq.Arguments == nil {
+		return errors.New("missing arguments dictionary")
+	}
+
 	// DEBUG:
 	jBytes, err := json.Marshal(&svcReq)
 	if err == nil {
@@ -56,7 +54,9 @@ func (h *ServiceHTTPHandler) loadServiceRequest() error {
 	return nil
 }
 
-// Handle is ...
+// Handle is the main function that should be called after initializing
+// the ServiceHTTPHandler object.
+// It executes the corresponding HTTP method corresponding to the HTTP.Request
 func (h *ServiceHTTPHandler) Handle() {
 	switch h.request.Method {
 	case "GET":
