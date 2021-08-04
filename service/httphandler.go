@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"os"
 	"strings"
 )
 
@@ -14,12 +13,6 @@ import (
 type ServiceHTTPRequest struct {
 	Password  string
 	Arguments map[string]string
-}
-
-// ServiceHTTPRequestError is ...
-type ServiceHTTPRequestError struct {
-	Code        int
-	Description string
 }
 
 // ServiceHTTPHandler is ...
@@ -78,55 +71,12 @@ func (h *ServiceHTTPHandler) Handle() {
 	}
 }
 
-func (h *ServiceHTTPHandler) handleError(err error) bool {
-	//@TODO: Respond with actual error codes for know errors.
-	if err == nil {
-		return false
-	}
-	fmt.Fprintln(os.Stderr, err)
-	var httpErr ServiceHTTPRequestError
-	httpErr.Code = 999
-	httpErr.Description = err.Error()
-	errBytes, err := json.Marshal(httpErr)
-	rw := *h.responseWriter
-	rw.WriteHeader(500)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-	} else {
-		rw.Write(errBytes)
-	}
-	return true
-}
-
 func (h *ServiceHTTPHandler) checkPassword(pwd string) error {
 	//@TODO: Use hash insted of Plain password.
 	if pwd == h.service.Config.Password {
 		return nil
 	}
 	return errors.New("invalid password")
-}
-
-func (h *ServiceHTTPHandler) handleGETMethod() {
-	fmt.Println("pepino service: GET request")
-	if h.handleError(h.loadServiceRequest()) {
-		return
-	}
-
-	if h.handleError(h.checkPassword(h.serviceRequest.Password)) {
-		return
-	}
-
-	rw := *h.responseWriter
-	rw.Header().Add("Content-Type", "text/plain")
-	rw.Write([]byte("Good :)\n"))
-}
-
-func (h *ServiceHTTPHandler) handlePOSTMethod() {
-	fmt.Println("pepino service: POST request")
-}
-
-func (h *ServiceHTTPHandler) handleDELETEMethod() {
-	fmt.Println("pepino service: DELETE request")
 }
 
 func (svc *Service) getHTTPHandle() http.Handler {
