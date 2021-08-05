@@ -4,6 +4,7 @@
 	"Password": "caipiroska",
 	"TLSEnable": false,
 	"TLSCertFile": "./sslcert",
-	"TLSKeyFile": "./sslkey"
+	"TLSKeyFile": "./sslkey",
+	"DataPath": "./data"
 }
 

@@ -1,4 +1,4 @@
-package pepinoservice
+package pepinohttpservice
 
 import (
 	"encoding/json"
@@ -6,18 +6,20 @@ import (
 	"os"
 )
 
-// ServiceConfig is ...
-type ServiceConfig struct {
+// DatabaseHTTPServiceConfig contains configuration values for the
+// DatabaseHTTPService object
+type DatabaseHTTPServiceConfig struct {
 	Host        string
 	Port        int
 	Password    string
 	TLSEnable   bool
 	TLSCertFile string
 	TLSKeyFile  string
+	DataPath    string
 }
 
-// LoadFromJSONFile is ...
-func (cfg *ServiceConfig) LoadFromJSONFile(filePath string) error {
+// LoadFromJSONFile initializes a DatabaseHTTPServiceConfig from a JSON File
+func (cfg *DatabaseHTTPServiceConfig) LoadFromJSONFile(filePath string) error {
 	fileBytes, err := os.ReadFile(filePath)
 	if err != nil {
 		return fmt.Errorf("error loading config from JSON file: \n\t%s", err.Error())

@@ -10,20 +10,21 @@ import (
 
 // Database contains information an specific db
 type Database struct {
-	Name    string
-	Entries map[string][]byte
+	Name         string
+	Entries      map[string][]byte
+	dataFilePath string
+	initialized  bool
 }
 
-// New creates a new Database object
-func (d *Database) New(name string) {
+// Initialize Database object values
+func (d *Database) Initialize(name string, dataPath string) {
 	d.Name = name
 	d.Entries = make(map[string][]byte)
+	d.dataFilePath = dataPath + "/" + name
 }
 
 // Save stores object state
 func (d *Database) Save() error {
-	//@TODO: the Database folder path should be absolute and stored
-	// into a config object or something.
 	var buff bytes.Buffer
 	enc := gob.NewEncoder(&buff)
 	err := enc.Encode(d.Entries)
@@ -31,7 +32,7 @@ func (d *Database) Save() error {
 		return fmt.Errorf("error saving Database object:"+
 			"\n\tSerialization error: %s", err.Error())
 	}
-	err = os.WriteFile("./data/"+d.Name, buff.Bytes(), 0644)
+	err = os.WriteFile(d.dataFilePath, buff.Bytes(), 0644)
 	if err != nil {
 		return fmt.Errorf("error saving Database object:"+
 			"\n\tos.WriteFile() error: %s", err.Error())
@@ -42,7 +43,7 @@ func (d *Database) Save() error {
 // HasSavedData indicates if a Database object has saved data
 // available to restore
 func (d *Database) HasSavedData() bool {
-	_, err := os.Stat("./data/" + d.Name)
+	_, err := os.Stat(d.dataFilePath)
 	return err == nil
 }
 
@@ -54,7 +55,7 @@ func (d *Database) Load() error {
 	}
 
 	var buff bytes.Buffer
-	fBytes, err := os.ReadFile("./data/" + d.Name)
+	fBytes, err := os.ReadFile(d.dataFilePath)
 	if err != nil {
 		return fmt.Errorf("error loading Database object:"+
 			"\n\tos.ReadFile() error: %s", err.Error())

@@ -1,20 +1,24 @@
 package main
 
 import (
-	pepinosvc "github.com/lucie-cupcakes/pepino/service"
+	pepinohttpservice "github.com/lucie-cupcakes/pepino/httpservice"
 )
 
-func main() {
-	var svc pepinosvc.Service
-	var cfg pepinosvc.ServiceConfig
+var (
+	dbHTTPService pepinohttpservice.DatabaseHTTPService
+)
 
+func init() {
+	var cfg pepinohttpservice.DatabaseHTTPServiceConfig
 	err := cfg.LoadFromJSONFile("./config.json")
 	if err != nil {
 		panic(err)
 	}
-	svc.New(&cfg)
+	dbHTTPService.Initialize(&cfg)
+}
 
-	err = svc.ListenAndHandleRequests()
+func main() {
+	err := dbHTTPService.Listen()
 	if err != nil {
 		panic(err)
 	}
