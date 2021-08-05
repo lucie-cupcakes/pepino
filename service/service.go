@@ -20,6 +20,7 @@ type Service struct {
 func (s *Service) New(cfg *ServiceConfig) {
 	s.Config = cfg
 	s.initialized = true
+	s.Databases = make(map[string]*engine.Database)
 }
 
 // ListenAndHandleRequests starts HTTP service to handle database requests
