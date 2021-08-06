@@ -4,15 +4,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"os"
-	"strings"
 )
 
 type request struct {
 	dbHTTPService      *DatabaseHTTPService
-	parameters         *RequestParameters
 	httpRequest        *http.Request
 	httpResponseWriter *http.ResponseWriter
 	initialized        bool
@@ -23,44 +20,7 @@ func (r *request) initialize(dbHTTPService *DatabaseHTTPService,
 	r.httpRequest = httpRequest
 	r.httpResponseWriter = httpRw
 	r.dbHTTPService = dbHTTPService
-	r.parameters = nil
 	r.initialized = true
-}
-
-func (r *request) loadParameters() error {
-	if !r.initialized {
-		return errors.New("object outgoingRequest is not initialized")
-	}
-	if r.parameters != nil {
-		return errors.New("parameters already loaded")
-	}
-	httpRequest := r.httpRequest
-	if !strings.HasSuffix(strings.ToLower(httpRequest.Header.Get("Content-Type")), "/json") {
-		return errors.New("invalid Content-Type")
-	}
-
-	bodyBytes, err := ioutil.ReadAll(httpRequest.Body)
-	if err != nil {
-		return err
-	}
-	var p RequestParameters
-	err = json.Unmarshal(bodyBytes, &p)
-	if err != nil {
-		//@TODO: FormatError
-		return err
-	}
-	r.parameters = &p
-
-	if p.Arguments == nil {
-		return errors.New("missing arguments dictionary")
-	}
-
-	// DEBUG:
-	jBytes, err := json.Marshal(&p)
-	if err == nil {
-		fmt.Println("Request: " + string(jBytes))
-	}
-	return nil
 }
 
 func (r *request) handle() {
@@ -87,39 +47,47 @@ func (r *request) checkPassword(pwd string) error {
 }
 
 func (r *request) handleGETMethod() {
-	fmt.Println("pepino service: GET request")
-	if r.handleError(r.loadParameters()) {
-		return
-	}
-	if r.handleError(r.checkPassword(r.parameters.Password)) {
-		return
-	}
-
-	if r.handleError(r.parameters.RequireArgument("DatabaseName")) {
-		return
-	}
-
-	if r.handleError(r.parameters.RequireArgument("EntryName")) {
-		return
-	}
-
-	entryValue, err := r.dbHTTPService.dbService.GetEntry(r.parameters.Arguments["DatabaseName"], r.parameters.Arguments["EntryName"])
-
-	if r.handleError(err) {
-		return
-	}
 	rw := *r.httpResponseWriter
-	rw.WriteHeader(200)
+	uri := r.httpRequest.URL.Path
+
+	fmt.Println("pepino service: GET request " + uri)
+
+	uriValues := r.httpRequest.URL.Query()
+
+	password := uriValues.Get("password")
+	if r.checkPassword(password) != nil {
+		fmt.Fprintln(os.Stderr, "forbidden: invalid password")
+		rw.WriteHeader(http.StatusForbidden)
+		return
+	}
+
+	dbName := uriValues.Get("db")
+	if dbName == "" {
+		fmt.Fprintln(os.Stderr, "bad request: missing URI parameter: db")
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	entryName := uriValues.Get("entry")
+	if entryName == "" {
+		fmt.Fprintln(os.Stderr, "bad request: missing URI parameter: entry")
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	entryValue, err := r.dbHTTPService.dbService.GetEntry(dbName, entryName)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		rw.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	rw.WriteHeader(http.StatusOK)
 	rw.Header().Add("Content-Type", "application/octet-stream")
 	_, err = rw.Write(entryValue)
 	if err != nil {
 		fmt.Fprint(os.Stderr, err)
 	}
-
-	/*rw.WriteHeader(404)
-	rw.Header().Add("Content-Type", "text/plain")
-	rw.Write([]byte("the entry " + entryName + " is not found"))
-	*/
 }
 
 func (r *request) handlePOSTMethod() {
