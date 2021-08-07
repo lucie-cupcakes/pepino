@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
 )
@@ -91,7 +92,49 @@ func (r *request) handleGETMethod() {
 }
 
 func (r *request) handlePOSTMethod() {
-	fmt.Println("pepino service: POST request")
+	rw := *r.httpResponseWriter
+	uri := r.httpRequest.URL.Path
+
+	fmt.Println("pepino service: POST request " + uri)
+
+	uriValues := r.httpRequest.URL.Query()
+
+	password := uriValues.Get("password")
+	if r.checkPassword(password) != nil {
+		fmt.Fprintln(os.Stderr, "forbidden: invalid password")
+		rw.WriteHeader(http.StatusForbidden)
+		return
+	}
+
+	dbName := uriValues.Get("db")
+	if dbName == "" {
+		fmt.Fprintln(os.Stderr, "bad request: missing URI parameter: db")
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	entryName := uriValues.Get("entry")
+	if entryName == "" {
+		fmt.Fprintln(os.Stderr, "bad request: missing URI parameter: entry")
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	entryValue, err := ioutil.ReadAll(r.httpRequest.Body)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		rw.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	err = r.dbHTTPService.dbService.PutEntry(dbName, entryName, entryValue)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		rw.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	rw.WriteHeader(http.StatusOK)
 }
 
 func (r *request) handleDELETEMethod() {

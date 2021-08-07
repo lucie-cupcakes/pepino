@@ -10,5 +10,9 @@ func (svc *DatabaseService) PutEntry(dbName string, entryName string,
 	}
 
 	dbPtr.Entries[entryName] = entryValue
+	err = dbPtr.Save()
+	if err != nil {
+		return err
+	}
 	return nil
 }
