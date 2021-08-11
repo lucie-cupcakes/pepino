@@ -11,7 +11,15 @@ Simple key-value database made with HTTP protocol in mind
 Edit the config file to your likings before invoking the executable.
 you can create a systemd unit, or [pm2](https://github.com/Unitech/pm2) app.json if you want to keep track of the service status.
 
-# examples
+# examples: Code
+I made a simple CRUD Notes command line program, in different programming languages.
+
+|Programming language| Repo |
+|--|--|
+| JavaScript (Node.js) | [simple-notes-js](https://github.com/lucie-cupcakes/simple-notes-js) |
+| C# (Dotnet Core) | [simple-notes-cs](https://github.com/lucie-cupcakes/simple-notes-cs) |
+
+# examples: CURL
 We are gonna use the program [curl](https://curl.se/) to invoke HTTP requests.
 Note: examples uses the default password.
 
