@@ -16,6 +16,7 @@ I made a simple CRUD Notes command line program, in different programming langua
 
 |Programming language| Repo |
 |--|--|
+| Python | [simple-notes-py](https://github.com/lucie-cupcakes/simple-notes-py) |
 | JavaScript (Node.js) | [simple-notes-js](https://github.com/lucie-cupcakes/simple-notes-js) |
 | C# (Dotnet Core) | [simple-notes-cs](https://github.com/lucie-cupcakes/simple-notes-cs) |
 
