@@ -14,12 +14,17 @@ you can create a systemd unit, or [pm2](https://github.com/Unitech/pm2) app.json
 # What? Why? What does pepino even mean?
 
 When I was trying out ``NoSQL`` databases, I tried `mongodb`, don't get me wrong, it's an excellent Database.
+
 But it had waay to much to offer from what I actually needed, and it wasnt justifying the usage of memory and resources.
+
 I thought to myself: Well I'm gonna make a new database engine, It will listen to HTTP and I can make it store and restore bytes and that's all I need.
+
 Later I realized that I needed a way to let the user filter the data, so I added stored procedures as an option to have Python programs inside as Entries that can handle and filter user data exactly as the user wants.
 
 **pepino means cucumber in Spanish**
+
 When I first started the Database I asked my friend how should I name this program and they say this, I just followed them.
+
 **the default password is an alcoholic drink that uses cucumber**
 
 # examples: Code
@@ -47,6 +52,16 @@ Getting an entry:
 Deleting an entry:
 
     curl -X DELETE 'localhost:50200/?password=caipiroska&db=mydb&entry=Hello'
+
+Checking if an entry exists:
+
+(HTTP Status 200 if it exists, 404 if it doesn't)
+    
+    curl -v 'localhost:50200/?password=caipiroska&db=mydb&entry=Hello&exists=true'
+
+Getting a list of entries:
+    
+    curl 'localhost:50200/?password=caipiroska&db=mydb&list=true'
 
 # examples: Stored Procedures
 pepino allows the user to run entries as Python 3 code.
