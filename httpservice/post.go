@@ -8,7 +8,7 @@ import (
 
 func (r *request) handlePOSTMethod() {
 	rw := *r.httpResponseWriter
-	uri := r.httpRequest.URL.Path
+	uri := r.httpRequest.URL.String()
 
 	fmt.Println("pepino service: POST request " + uri)
 

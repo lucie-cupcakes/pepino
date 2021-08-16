@@ -7,7 +7,7 @@ import (
 
 func (r *request) handleDELETEMethod() {
 	rw := *r.httpResponseWriter
-	uri := r.httpRequest.URL.Path
+	uri := r.httpRequest.URL.String()
 
 	fmt.Println("pepino service: DELETE request " + uri)
 
