@@ -107,4 +107,5 @@ Here are the variables being sent:
 | ``PEPINODB_PWD`` | The password needed for accessing the DatabaseHTTPService | ``caipiroska`` |
 | ``PEPINODB_DB`` | The database name where the StoredProcedure is being runned from. | ``mydb`` |
 | ``PEPINODB_SCRIPT`` | The StoredProcedure (entryName) being called. | ``program.py`` |
+| ``PEPINODB_URI_PARAMS`` | The URI params from the original Request from the DatabaseHTTPService. This can be used to allow the StoredProcedure to handle custom URI params. | ``/?password=caipiroska&db=mydb&entry=program.py&exec=true&spCustom=Example`` |
 
