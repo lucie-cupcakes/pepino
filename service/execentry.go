@@ -16,7 +16,7 @@ import (
 // and executes the given entryName as a Python script.
 // StandardOutput is returned
 func (svc *DatabaseService) ExecEntry(dbName string, entryName string,
-	inputReader io.ReadCloser) ([]byte, error) {
+	inputReader io.ReadCloser, env map[string]string) ([]byte, error) {
 	if !svc.initialized {
 		return nil, errors.New("object DatabaseService is not initialized")
 	}
@@ -42,12 +42,25 @@ func (svc *DatabaseService) ExecEntry(dbName string, entryName string,
 	}
 	defer os.Remove(entryFPath)
 	cmd := exec.Command("python3", entryFPath)
-	cmd.Stdin = inputReader
-	var out bytes.Buffer
-	cmd.Stdout = &out
+	if inputReader != nil {
+		cmd.Stdin = inputReader
+	}
+	cmd.Env = os.Environ()
+	if env != nil && len(env) > 0 {
+		for k, v := range env {
+			cmd.Env = append(cmd.Env, k+"="+v)
+		}
+	}
+	var cmdStdOut bytes.Buffer
+	var cmdStdErr bytes.Buffer
+	cmd.Stdout = &cmdStdOut
+	cmd.Stderr = &cmdStdErr
 	err = cmd.Run()
 	if err != nil {
+		if strings.HasPrefix(err.Error(), "exit status") && cmdStdErr.Len() > 0 {
+			return nil, errors.New(cmdStdErr.String())
+		}
 		return nil, fmt.Errorf("cannot execute entry: \n\t%s", err.Error())
 	}
-	return out.Bytes(), nil
+	return cmdStdOut.Bytes(), nil
 }
