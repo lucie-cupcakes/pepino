@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
 )
 
 func (r *request) handleGETMethod() {
@@ -32,20 +33,43 @@ func (r *request) handleGETMethod() {
 		return
 	}
 
-	entryValue, err := r.dbHTTPService.dbService.GetEntry(dbName, entryName)
-	if err != nil {
-		if err.Error() == "entry not found" {
-			r.writeError(http.StatusNotFound, err.Error())
-		} else {
-			r.writeError(http.StatusInternalServerError, err.Error())
+	execParam := uriValues.Get("exec")
+	if execParam == "" || strings.ToLower(execParam) == "false" {
+		entryValue, err := r.dbHTTPService.dbService.GetEntry(dbName, entryName)
+		if err != nil {
+			if err.Error() == "entry not found" {
+				r.writeError(http.StatusNotFound, err.Error())
+			} else {
+				r.writeError(http.StatusInternalServerError, err.Error())
+			}
+			return
 		}
-		return
-	}
-
-	rw.WriteHeader(http.StatusOK)
-	rw.Header().Add("Content-Type", "application/octet-stream")
-	_, err = rw.Write(entryValue)
-	if err != nil {
-		fmt.Fprint(os.Stderr, err)
+		rw.WriteHeader(http.StatusOK)
+		rw.Header().Add("Content-Type", "application/octet-stream")
+		_, err = rw.Write(entryValue)
+		if err != nil {
+			fmt.Fprint(os.Stderr, err)
+		}
+	} else if strings.ToLower(execParam) == "true" {
+		bodyReader, err := r.httpRequest.GetBody()
+		if err != nil {
+			r.writeError(http.StatusInternalServerError, err.Error())
+			return
+		}
+		execResult, err := r.dbHTTPService.dbService.ExecEntry(dbName, entryName, bodyReader)
+		if err != nil {
+			if err.Error() == "entry not found" {
+				r.writeError(http.StatusNotFound, err.Error())
+			} else {
+				r.writeError(http.StatusInternalServerError, err.Error())
+			}
+			return
+		}
+		rw.WriteHeader(http.StatusOK)
+		rw.Header().Add("Content-Type", "application/octet-stream")
+		_, err = rw.Write(execResult)
+		if err != nil {
+			fmt.Fprint(os.Stderr, err)
+		}
 	}
 }

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"strings"
@@ -14,7 +15,8 @@ import (
 // ExecEntry loads the database to memory
 // and executes the given entryName as a Python script.
 // StandardOutput is returned
-func (svc *DatabaseService) ExecEntry(dbName string, entryName string, input []byte) ([]byte, error) {
+func (svc *DatabaseService) ExecEntry(dbName string, entryName string,
+	inputReader io.ReadCloser) ([]byte, error) {
 	if !svc.initialized {
 		return nil, errors.New("object DatabaseService is not initialized")
 	}
@@ -40,7 +42,7 @@ func (svc *DatabaseService) ExecEntry(dbName string, entryName string, input []b
 	}
 	defer os.Remove(entryFPath)
 	cmd := exec.Command("python3", entryFPath)
-	cmd.Stdin = bytes.NewReader(input)
+	cmd.Stdin = inputReader
 	var out bytes.Buffer
 	cmd.Stdout = &out
 	err = cmd.Run()
