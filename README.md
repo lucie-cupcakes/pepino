@@ -80,7 +80,7 @@ print("Entry 'hello' got from the Python Script = " + res_str)
 ```
 Save the adobe example as ``program.py``, now we are gonna store it in the database:
 
-	curl -X POST --data @- 'localhost:50100/?password=caipiroska&db=mydb&entry=program.py' < program.py
+	curl -X POST --data-binary @- 'localhost:50100/?password=caipiroska&db=mydb&entry=program.py' < program.py
 
 Now here is the trick, to ask PepinoDB to actually run the program, you have to pass the argument ``exec=true`` while calling the GET method:
 
