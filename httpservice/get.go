@@ -87,10 +87,16 @@ func (r *request) handleGETMethodEntryExists(dbName string, entryName string) {
 	rw := *r.httpResponseWriter
 	entryExists, err := r.dbHTTPService.dbService.EntryExists(dbName, entryName)
 	if err != nil {
+		if err.Error() == "database is empty" {
+			rw.WriteHeader(http.StatusNotFound)
+			return
+		}
 		r.writeError(http.StatusInternalServerError, err.Error())
+		return
 	}
 	if entryExists {
 		rw.WriteHeader(http.StatusOK)
+		return
 	}
 	rw.WriteHeader(http.StatusNotFound)
 }
