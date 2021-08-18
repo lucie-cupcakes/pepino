@@ -9,7 +9,7 @@ var (
 )
 
 func init() {
-	var cfg pepinohttpservice.DatabaseHTTPServiceConfig
+	cfg := pepinohttpservice.DatabaseHTTPServiceConfig{}
 	err := cfg.LoadFromJSONFile("./config.json")
 	if err != nil {
 		panic(err)
