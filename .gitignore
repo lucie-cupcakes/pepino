@@ -1,6 +1,9 @@
 # Data folder (db data)
 data/
 
+# Temp
+tmp/
+
 # Config
 config.json
 sslcert

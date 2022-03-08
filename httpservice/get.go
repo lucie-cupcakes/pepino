@@ -66,7 +66,7 @@ func (r *request) handleGETMethodExecEntry(dbName string, entryName string) {
 	cmdEnv["PEPINODB_DB"] = dbName
 	cmdEnv["PEPINODB_SCRIPT"] = entryName
 	cmdEnv["PEPINODB_URI_PARAMS"] = r.httpRequest.URL.String()
-	execResult, err := r.dbHTTPService.dbService.ExecEntry(dbName, entryName, bodyReader, cmdEnv)
+	execResult, err := r.dbHTTPService.dbService.ExecStoredProcedure(dbName, entryName, bodyReader, cmdEnv)
 	if err != nil {
 		if err.Error() == "entry not found" {
 			r.writeError(http.StatusNotFound, err.Error())
