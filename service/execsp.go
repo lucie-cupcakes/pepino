@@ -19,6 +19,9 @@ func (svc *DatabaseService) ExecStoredProcedure(dbName string, entryName string,
 	if !svc.initialized {
 		return nil, errors.New("object DatabaseService is not initialized")
 	}
+	if !svc.enableSp {
+		return nil, errors.New("stored procedures disabled")
+	}
 	if !strings.HasPrefix(entryName, "sp_") {
 		return nil, errors.New("only entries starting with 'sp_' can be executed")
 	}
@@ -26,7 +29,6 @@ func (svc *DatabaseService) ExecStoredProcedure(dbName string, entryName string,
 	if err != nil {
 		return nil, err
 	}
-
 	spValue, spFound := dbPtr.Entries[entryName]
 	if !spFound {
 		return nil, errors.New("entry not found")
@@ -49,7 +51,7 @@ func (svc *DatabaseService) ExecStoredProcedure(dbName string, entryName string,
 		return nil, fmt.Errorf("cannot execute entry: \n\t%s", err.Error())
 	}
 
-	spDirPath := "./tmp/" + entryName + "_" + entryID.String()
+	spDirPath := svc.tmpPath + entryName + "_" + entryID.String()
 	err = os.Mkdir(spDirPath, 0755)
 	if err != nil {
 		return nil, fmt.Errorf("cannot execute entry: \n\t%s", err.Error())

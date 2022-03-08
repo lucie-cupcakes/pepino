@@ -18,12 +18,16 @@ type DatabaseHTTPService struct {
 }
 
 // Initialize : setup DatabaseHTTPService object
-func (s *DatabaseHTTPService) Initialize(cfg *DatabaseHTTPServiceConfig) {
+func (s *DatabaseHTTPService) Initialize(cfg *DatabaseHTTPServiceConfig) error {
 	s.config = cfg
 	s.initialized = true
 	var dbSvc service.DatabaseService
-	dbSvc.Initialize(cfg.DataPath)
+	err := dbSvc.Initialize(cfg.DataPath, cfg.TmpPath, cfg.EnableStoredProcedures)
+	if err != nil {
+		return err
+	}
 	s.dbService = &dbSvc
+	return nil
 }
 
 func (s *DatabaseHTTPService) getHTTPHandle() http.Handler {

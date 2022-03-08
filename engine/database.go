@@ -13,14 +13,16 @@ type Database struct {
 	Name         string
 	Entries      map[string][]byte
 	dataFilePath string
+	tmpPath      string
 	initialized  bool
 }
 
 // Initialize Database object values
-func (d *Database) Initialize(name string, dataPath string) {
+func (d *Database) Initialize(name string, dataPath string, tmpPath string) {
 	d.Name = name
 	d.Entries = make(map[string][]byte)
 	d.dataFilePath = dataPath + "/" + name
+	d.tmpPath = tmpPath
 }
 
 // Save stores object state

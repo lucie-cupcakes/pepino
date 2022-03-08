@@ -2,9 +2,11 @@
 	"Host": "127.0.0.1",
 	"Port": 50200,
 	"Password": "caipiroska",
+	"EnableStoredProcedures": true,
 	"TLSEnable": false,
 	"TLSCertFile": "./sslcert",
 	"TLSKeyFile": "./sslkey",
-	"DataPath": "./data"
+	"DataPath": "./data",
+	"TmpPath": "./tmp"
 }
 

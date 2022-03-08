@@ -11,7 +11,7 @@ func (svc *DatabaseService) loadDatabaseToMemory(dbName string,
 	dbPtr, dbPtrFound := svc.databases[dbName]
 	if !dbPtrFound {
 		var dbLocal engine.Database
-		dbLocal.Initialize(dbName, svc.dataPath)
+		dbLocal.Initialize(dbName, svc.dataPath, svc.tmpPath)
 		if !createIt {
 			if !dbLocal.HasSavedData() {
 				return nil, errors.New("database is empty")

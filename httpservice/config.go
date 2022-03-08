@@ -9,13 +9,15 @@ import (
 // DatabaseHTTPServiceConfig contains configuration values for the
 // DatabaseHTTPService object
 type DatabaseHTTPServiceConfig struct {
-	Host        string
-	Port        int
-	Password    string
-	TLSEnable   bool
-	TLSCertFile string
-	TLSKeyFile  string
-	DataPath    string
+	Host                   string
+	Port                   int
+	Password               string
+	TLSEnable              bool
+	TLSCertFile            string
+	TLSKeyFile             string
+	DataPath               string
+	TmpPath                string
+	EnableStoredProcedures bool
 }
 
 // LoadFromJSONFile initializes a DatabaseHTTPServiceConfig from a JSON File
