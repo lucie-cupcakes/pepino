@@ -15,7 +15,7 @@ you can create a systemd unit, or [pm2](https://github.com/Unitech/pm2) app.json
 
 When I was trying out ``NoSQL`` databases, I tried `mongodb`, don't get me wrong, it's an excellent Database.
 
-But it had waay to much to offer from what I actually needed, and it wasnt justifying the usage of memory and resources.
+But it had waay too much to offer from what I actually needed, and it wasnt justifying the usage of memory and resources.
 
 I thought to myself: Well I'm gonna make a new database engine, It will listen to HTTP and I can make it store and restore bytes and that's all I need.
 
@@ -64,6 +64,8 @@ Getting a list of entries:
     curl 'localhost:50200/?password=caipiroska&db=mydb&list=true'
 
 # examples: Stored Procedures
+Note: this part is outdated as this version, I plan to update the README soon.
+
 pepino allows the user to run entries as Python 3 code.
 
 Here is an example program that loads an entry and prints it back:
