@@ -1,7 +1,9 @@
 package pepinohttpservice
 
 import (
+	"log"
 	"net/http"
+	"time"
 )
 
 type request struct {
@@ -20,6 +22,11 @@ func (r *request) initialize(dbHTTPService *DatabaseHTTPService,
 }
 
 func (r *request) handle() {
+	t0 := time.Now()
+	defer func() {
+		td := time.Since(t0)
+		log.Printf("request completed in %v", td)
+	}()
 	httpMethod := r.httpRequest.Method
 	switch httpMethod {
 	case "GET":

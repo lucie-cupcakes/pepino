@@ -2,7 +2,7 @@ package pepinohttpservice
 
 import (
 	"errors"
-	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -45,10 +45,10 @@ func (s *DatabaseHTTPService) Listen() error {
 	}
 	hostStr := s.config.Host + ":" + strconv.Itoa(s.config.Port)
 	if s.config.TLSEnable {
-		fmt.Println("pepino service: Listening on HTTPS@" + hostStr)
+		log.Println("Listening on HTTPS@" + hostStr)
 		http.ListenAndServeTLS(hostStr, s.config.TLSCertFile, s.config.TLSKeyFile, s.getHTTPHandle())
 	} else {
-		fmt.Println("pepino service: Listening on HTTP@" + hostStr)
+		log.Println("Listening on HTTP@" + hostStr)
 		http.ListenAndServe(hostStr, s.getHTTPHandle())
 	}
 	return nil

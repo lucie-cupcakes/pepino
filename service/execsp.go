@@ -7,9 +7,11 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 
 	"github.com/google/uuid"
+	"github.com/lucie-cupcakes/pepino/untar"
 )
 
 // ExecStoredProcedure loads the meta data of an sp and executes it.
@@ -51,35 +53,45 @@ func (svc *DatabaseService) ExecStoredProcedure(dbName string, entryName string,
 		return nil, fmt.Errorf("cannot execute entry: \n\t%s", err.Error())
 	}
 
-	spDirPath := svc.tmpPath + entryName + "_" + entryID.String()
+	spDirPath := svc.tmpPath + "/" + entryName + "_" + entryID.String()
 	err = os.Mkdir(spDirPath, 0755)
 	if err != nil {
 		return nil, fmt.Errorf("cannot execute entry: \n\t%s", err.Error())
 	}
-	defer os.RemoveAll(spDirPath)
-	err = os.WriteFile(spDirPath+"/entry", spValue, 0664)
-	if err != nil {
-		return nil, fmt.Errorf("cannot execute entry: \n\t%s", err.Error())
-	}
-
+	defer func() {
+		go os.RemoveAll(spDirPath)
+	}()
+	var cmd *exec.Cmd
 	if spMeta.IsTar {
-		var cmdTarStdErr bytes.Buffer
-		cmdTar := exec.Command("tar", "-xf", "entry")
-		cmdTar.Dir = spDirPath
-		cmdTar.Stderr = &cmdTarStdErr
-		err = cmdTar.Run()
+		err = untar.Untar(bytes.NewReader(spValue), spDirPath)
 		if err != nil {
-			if strings.HasPrefix(err.Error(), "exit status") && cmdTarStdErr.Len() > 0 {
-				return nil, errors.New(cmdTarStdErr.String())
-			}
 			return nil, fmt.Errorf("cannot execute entry: \n\t%s", err.Error())
 		}
+		if spMeta.Interpreter == "" {
+			tarEntryPointAbs, err := filepath.Abs(spDirPath + "/" + spMeta.TarEntryPoint)
+			if err != nil {
+				return nil, fmt.Errorf("cannot execute entry: \n\tcannot resolve abs path:\n\t%s", err.Error())
+			}
+			cmd = exec.Command(tarEntryPointAbs)
+		} else {
+			cmd = exec.Command(spMeta.Interpreter, spMeta.TarEntryPoint)
+		}
+	} else {
+		spEntryFilePath := spDirPath + "/entry"
+		err = os.WriteFile(spEntryFilePath, spValue, 0764)
+		if err != nil {
+			return nil, fmt.Errorf("cannot execute entry: \n\t%s", err.Error())
+		}
+		spEntryFilePathAbs, err := filepath.Abs(spEntryFilePath)
+		if err != nil {
+			return nil, fmt.Errorf("cannot execute entry: \n\tcannot get absolute path: \n\t%s", err.Error())
+		}
+		if spMeta.Interpreter == "" {
+			cmd = exec.Command(spEntryFilePathAbs)
+		} else {
+			cmd = exec.Command(spMeta.Interpreter, "entry")
+		}
 	}
-	entryFileName := "entry"
-	if spMeta.IsTar {
-		entryFileName = spMeta.TarEntryPoint
-	}
-	cmd := exec.Command(spMeta.Interpreter, entryFileName)
 	var cmdStdOut bytes.Buffer
 	var cmdStdErr bytes.Buffer
 	cmd.Stdout = &cmdStdOut
